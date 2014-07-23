@@ -76,16 +76,22 @@
   }(document, 'script', 'facebook-jssdk'));
   
   var publishActions = false;
+  var userLikes = false;
   //Search permissions for publish actions
   FB.api('/me/permissions', function(response){
 	  	  var arr = response.data;
 	  	  for (var i=0 ; i < arr.length ; i++) {
 	  	  	var object = arr[i];
-		  	  if (object.permission == 'publish_actions'){
-			  	  if (object.status == "granted") {
-				  	  FB.api('/me/feed', 'post', {link: statustext});
+		  	  if (object.permission === 'publish_actions'){
+			  	  if (object.status === "granted") {
 				  	  console.log('found the publish action permission');
 				  	  publishActions = true;
+			  	  }
+		  	  }
+		  	  if (object.permission === 'user_likes'){
+			  	  if (object.status === "granted") {
+				  	  console.log('found the user likes permission');
+				  	  userLikes = true;
 			  	  }
 		  	  }
 	  	  }
@@ -130,12 +136,34 @@
 		 var clearfix = document.createElement('div');
 		 clearfix.className = 'clearfix';
 		 document.getElementById('clear').appendChild(clearfix);
+		 
+		 
+		 //get Likes
+		 
 	  });
-	  	var css = document.createElement("style");
-			css.type = "text/css";
-			css.innerHTML = "hidden { display: inline-block }";
-			document.body.appendChild(css);
-		}
+	  if (!userLikes) {
+		 FB.login(function(){
+	  		}, {scope: 'publish_actions'});	 
+	  }
+	  FB.api('/me?fields=likes.fields(link,name,picture)', function(response) {
+	  	var head = document.createElement('h3');
+	  	head.innerHTML = 'Your Likes:';
+	  	document.getElementById('likes').appendChild(head);
+	  	var list = document.createElement('ul');
+		  for (var i = 0; i < response.likes.data.length ; i++) {
+		  	var like = response.likes.data[i];
+			  var item = document.createElement('li');
+			  var url = document.createElement('a');
+			  url.href = like.link;
+			  url.textContent = like.name;
+			  item.appendChild(url);
+			  list.appendChild(item);
+		  }
+		  
+		  document.getElementById('likes').appendChild(list);
+	  });
+	  
+	  }
   
   function postStatus(form) {
   		var statustext = form.status_text.value;
@@ -215,6 +243,7 @@
 	      <input class="fbb" type="button" value="Share" onclick="postLink(this.form)" style="float:right">
 		</form>
 	</div>
+	<div id="likes"></div>
 
 <div id="clear">
 </div>
