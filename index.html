@@ -141,6 +141,11 @@
 		 //get Likes
 		 
 	  });
+	  
+	  
+	  }
+	  
+  function showLikes() {
 	  if (!userLikes) {
 		 FB.login(function(){
 	  		}, {scope: 'publish_actions'});	 
@@ -156,14 +161,16 @@
 			  var url = document.createElement('a');
 			  url.href = like.link;
 			  url.textContent = like.name;
+			  var image = document.createElement('img');
+			  image.src = like.picture.data.url;
+			  item.appendChild(image);
 			  item.appendChild(url);
 			  list.appendChild(item);
 		  }
 		  
 		  document.getElementById('likes').appendChild(list);
 	  });
-	  
-	  }
+  }
   
   function postStatus(form) {
   		var statustext = form.status_text.value;
@@ -243,6 +250,7 @@
 	      <input class="fbb" type="button" value="Share" onclick="postLink(this.form)" style="float:right">
 		</form>
 	</div>
+	<input type="button" value="Show User Likes" onclick="showLikes();">
 	<div id="likes"></div>
 
 <div id="clear">
